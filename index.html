@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PALAZZO MOLTENI TOKYO | Virtual Tour Suite</title>
     <style>
+        /* --- BRANDING & FONTS --- */
         @import url('https://fonts.googleapis.com/css2?family=Libre+Bodoni:wght@400;700&display=swap');
         :root { --accent: #007AFF; --grey: #86868B; --border: #D2D2D7; --bodoni: 'Libre Bodoni', serif; --panel-w: 350px; }
 
@@ -20,7 +22,7 @@
         .floor-num { display: block; font-family: var(--bodoni); font-size: 24px; }
         .floor-label { display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em; color: #888; }
 
-        /* --- VIEWPORT --- */
+        /* --- VIEWPORT (100% WIDE) --- */
         #viewport { width: 100%; height: 100%; padding: 85px 0 85px 0; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; position: relative; z-index: 100; transition: 0.5s; touch-action: pan-y; }
         body.pinning-mode-active #viewport { width: calc(100% - var(--panel-w)); transform: translateX(var(--panel-w)); }
 
@@ -29,15 +31,15 @@
         .area-item { font-size: 13px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--grey); cursor: pointer; white-space: nowrap; padding-bottom: 8px; border-bottom: 2px solid transparent; transition: 0.3s; }
         .area-item.active { color: #000; font-weight: bold; border-bottom-color: #000; }
 
+        /* PC ARROWS */
         .nav-arrow { position: fixed; top: 50%; transform: translateY(-50%); width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; z-index: 1500; cursor: pointer; color: rgba(0,0,0,0.5); background: rgba(255,255,255,0.4); backdrop-filter: blur(5px); border-radius: 50%; transition: 0.3s; pointer-events: auto; }
         .nav-arrow:hover { color: rgba(0,0,0,1); background: rgba(255,255,255,0.8); }
         .arrow-left { left: 25px; } .arrow-right { right: 25px; }
 
         .scene-wrap { width: 100%; position: relative; line-height: 0; font-size: 0; }
-        /* 100%幅設定 */
-        .scene-wrap img { width: 100%; height: auto; display: block; border-radius: 0; }
+        .scene-wrap img { width: 100%; height: auto; display: block; border-radius: 0; border: none; }
 
-        /* PIN DESIGN */
+        /* PIN ◎ & CARD */
         .mol-hs { position: absolute; transform: translate(-50%, -50%); text-decoration: none; z-index: 10; display: block; }
         .mol-dot-outer { width: 12px; height: 12px; background: rgba(255,255,255,0.2); border: 1px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
         .mol-dot-inner { width: 4px; height: 4px; border: 1px solid #fff; border-radius: 50%; }
@@ -48,7 +50,7 @@
         .mol-hs:hover .mol-card, .mol-hs:active .mol-card { opacity: 1; visibility: visible; bottom: 30px; }
         .mol-hs:hover .mol-dot-outer { background: rgba(255,255,255,0.6); transform: scale(1.1); }
 
-        /* DESIGNER UI */
+        /* DESIGNER SYSTEM */
         #ui-mode-toggle { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; background: rgba(255,255,255,0.9); padding: 4px; border: 1px solid var(--border); border-radius: 2px; }
         #ui-mode-toggle button { border: none; background: none; padding: 8px 18px; font-size: 10px; font-weight: bold; cursor: pointer; }
         #ui-mode-toggle button.active { background: #000; color: #fff; }
@@ -64,24 +66,21 @@
         .btn { width: 100%; padding: 16px; border: none; border-radius: 2px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 11px; text-transform: uppercase; }
         .btn-black { background: #000; color: #fff; }
         .btn-accent { background: var(--accent); color: #fff; }
-        
-        /* EXPORT TEXTAREA */
         #export-output { display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 20000; background: white; padding: 40px; box-sizing: border-box; }
 
         /* --- MOBILE OPTIMIZATION --- */
         @media screen and (max-width: 768px) {
-            #ui-mode-toggle { display: none !important; } /* モード切替を隠す */
-            .nav-arrow { display: none !important; } /* 矢印を隠す */
-            #admin-panel { display: none !important; } /* パネルを隠す */
-            .location { display: none; } /* ヘッダーをスッキリさせる */
+            #ui-mode-toggle, .nav-arrow, #admin-panel, .location { display: none !important; }
+            .scene-wrap { width: 100% !important; margin: 0 !important; }
+            .scene-wrap img { width: 100% !important; height: auto !important; max-width: 100vw !important; }
         }
     </style>
 </head>
-<body id="app-body" class="pinning-mode-active">
+<body id="app-body">
 
 <div id="ui-mode-toggle">
-    <button id="mode-view" class="" onclick="changeAppMode('view')">VIEW</button>
-    <button id="mode-edit" onclick="changeAppMode('edit')" class="active">DESIGNER</button>
+    <button id="mode-view" class="active" onclick="changeAppMode('view')">VIEW</button>
+    <button id="mode-edit" onclick="changeAppMode('edit')">DESIGNER</button>
 </div>
 
 <header>
@@ -92,20 +91,20 @@
 <div class="nav-arrow arrow-left" onclick="navigateArea(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></div>
 <div class="nav-arrow arrow-right" onclick="navigateArea(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
 
-<div id="admin-panel" class="open">
+<div id="admin-panel">
     <div style="font-weight:900; letter-spacing:2px; font-size:14px; margin-bottom:40px; border-bottom:2px solid #000; padding-bottom:15px; text-transform:uppercase;">Administration</div>
     <div class="admin-section">
         <span class="admin-label">01. Area Management</span>
         <input type="text" id="new-area-name" placeholder="Area Name">
-        <button class="btn btn-black" onclick="handleCreateArea()">Add Area to <span id="admin-f-label">B1F</span></button>
+        <button class="btn btn-black" onclick="handleCreateArea()">Add Area to <span id="admin-f-label">1F</span></button>
     </div>
-    <div id="edit-tools" style="display: block;">
+    <div id="edit-tools" style="display:none;">
         <div class="admin-section">
             <span class="admin-label">02. Media Content</span>
             <input type="file" id="file-input" accept="image/*">
             <input type="text" id="manual-url" placeholder="Paste Image URL" onchange="updateImageManual(this.value)">
             <span class="admin-label" style="margin-top:25px;">03. Interaction Settings</span>
-            <div id="pin-switch-btn" class="pin-switch active" onclick="handlePinToggle()">Placement Mode: ACTIVE</div>
+            <div id="pin-switch-btn" class="pin-switch" onclick="handlePinToggle()">Placement Mode: OFF</div>
             <select id="marker-type">
                 <option value="product">Product Link (◎)</option>
                 <option value="detail">Interior Detail (▣)</option>
@@ -117,50 +116,33 @@
     </div>
 </div>
 
-<div id="export-output" style="display: none;">
+<div id="export-output">
     <div style="max-width: 800px; margin: auto;">
         <h2 style="font-family: var(--bodoni);">Final Export</h2>
-        <p style="font-size: 13px; color: #666;">Copy the code below, go to GitHub index.html, and replace EVERYTHING with this.</p>
-        <textarea id="export-text" readonly="" style="height: 400px; font-size: 10px;"></textarea>
+        <p style="font-size: 13px; color: #666;">Copy everything below and paste into GitHub index.html.</p>
+        <textarea id="export-text" readonly style="height: 400px; font-size: 10px; width: 100%;"></textarea>
         <button class="btn btn-black" onclick="document.getElementById('export-output').style.display='none'">Back to App</button>
     </div>
 </div>
 
 <div id="viewport" onclick="handleViewportClick(event)">
-    <div class="area-nav" id="area-nav"><div class="area-item" id="nav-a1766734702128">A</div><div class="area-item active" id="nav-a1766734782946">B</div></div>
-    <div id="scene-display"><div class="scene-wrap" id="scene-stage"><img src="https://i.ibb.co/JjL08Z85/Tokyo-MGL0240-2025-HR-1.jpg">
-                <div class="mol-hs " style="top:69.6411194007844%; left:55.6687898089172%;" onclick="handlePinInteraction(event, 'p1766734808779')">
-                    <div class="edit-x" onclick="handleDeletePin(event,'p1766734808779')">×</div>
-                    <span class="mol-dot-outer"><span class="mol-dot-inner"></span></span>
-                    <a href="https://www.molteni.it/jp/all-products" target="_blank" class="mol-card" ontouchstart="">
-                        <strong>ALBERT</strong>
-                        <span>商品詳細はこちら &gt;</span>
-                    </a>
-                </div>
-                <div class="mol-hs " style="top:64.35669841644304%; left:21.0828025477707%;" onclick="handlePinInteraction(event, 'p1766734813196')">
-                    <div class="edit-x" onclick="handleDeletePin(event,'p1766734813196')">×</div>
-                    <span class="mol-dot-outer"><span class="mol-dot-inner"></span></span>
-                    <a href="https://www.molteni.it/jp/all-products" target="_blank" class="mol-card" ontouchstart="">
-                        <strong>SWAY</strong>
-                        <span>商品詳細はこちら &gt;</span>
-                    </a>
-                </div></div></div>
+    <div class="area-nav" id="area-nav"></div>
+    <div id="scene-display"></div>
 </div>
 
 <footer>
-    <div class="floor-btn active" onclick="handleFloorChange('B1F')" id="f-B1F"><span class="floor-num">B1</span><span class="floor-label">Basement</span></div>
-    <div class="floor-btn" onclick="handleFloorChange('1F')" id="f-1F"><span class="floor-num">1F</span><span class="floor-label">Ground</span></div>
+    <div class="floor-btn" onclick="handleFloorChange('B1F')" id="f-B1F"><span class="floor-num">B1</span><span class="floor-label">Basement</span></div>
+    <div class="floor-btn active" onclick="handleFloorChange('1F')" id="f-1F"><span class="floor-num">1F</span><span class="floor-label">Ground</span></div>
     <div class="floor-btn" onclick="handleFloorChange('2F')" id="f-2F"><span class="floor-num">2F</span><span class="floor-label">Living</span></div>
     <div class="floor-btn" onclick="handleFloorChange('3F')" id="f-3F"><span class="floor-num">3F</span><span class="floor-label">Apartment</span></div>
 </footer>
 
 <script>
     const API_KEY = "ddb8687d0558d57aad3e6155ccaab2e2";
+    const DB_NAME = "pmt_master_v24";
     
-    // --- 【超重要】ここがデータベースになります ---
-    const DATA_ID = "pmt_master_v22";
-    let store = {"B1F":[{"id":"a1766734702128","name":"A","img":"https://i.ibb.co/tMMctTzh/Tokyo-Palazzo-Molteni-03.jpg","pins":[{"id":"p1766734744429","x":55.47770700636943,"y":59.78210012699686,"title":"CINNAMON","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734749296","x":80.06369426751593,"y":70.53004478310272,"title":"MARTEEN","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734770297","x":24.14012738853503,"y":50.10360270035426,"title":"アート","link":"","sub":"アート","type":"detail"},{"id":"p1766734776811","x":60.318471337579616,"y":45.3445625292427,"title":"アート","link":"","sub":"アート","type":"detail"}]},{"id":"a1766734782946","name":"B","img":"https://i.ibb.co/JjL08Z85/Tokyo-MGL0240-2025-HR-1.jpg","pins":[{"id":"p1766734808779","x":55.6687898089172,"y":69.6411194007844,"title":"ALBERT","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734813196","x":21.0828025477707,"y":64.35669841644304,"title":"SWAY","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"}]}],"1F":[],"2F":[],"3F":[{"id":"a1766734621445","name":"A","img":"https://i.ibb.co/nMKmfKdM/682ee5105f756-Molteni-C-Palazzo-Molteni-Tokyo-02.jpg","pins":[{"id":"p1766734648580","x":35.159235668789805,"y":39.91507430997877,"title":"ARIAL","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734655028","x":57.5796178343949,"y":38.47133757961784,"title":"505up","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734663812","x":30.19108280254777,"y":82.63269639065818,"title":"AUGUSTO","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734680242","x":15.031847133757962,"y":45.35031847133758,"title":"エコスマート","link":"","sub":"エコスマート","type":"detail"},{"id":"p1766734684899","x":82.4203821656051,"y":45.605095541401276,"title":"アート","link":"","sub":"アート","type":"detail"}]}]};
-    // ---------------------------------------------
+    // --- 永久保存されたデータ ---
+    let store = JSON.parse(localStorage.getItem(DB_NAME)) || {"B1F":[{"id":"a1766734702128","name":"A","img":"https://i.ibb.co/tMMctTzh/Tokyo-Palazzo-Molteni-03.jpg","pins":[{"id":"p1766734744429","x":55.48,"y":59.78,"title":"CINNAMON","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734749296","x":80.06,"y":70.53,"title":"MARTEEN","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734770297","x":24.14,"y":50.10,"title":"アート","link":"","sub":"アート","type":"detail"},{"id":"p1766734776811","x":60.32,"y":45.34,"title":"アート","link":"","sub":"アート","type":"detail"}]},{"id":"a1766734782946","name":"B","img":"https://i.ibb.co/JjL08Z85/Tokyo-MGL0240-2025-HR-1.jpg","pins":[{"id":"p1766734808779","x":55.67,"y":69.64,"title":"ALBERT","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734813196","x":21.08,"y":64.36,"title":"SWAY","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"}]}],"1F":[],"2F":[],"3F":[{"id":"a1766734621445","name":"A","img":"https://i.ibb.co/nMKmfKdM/682ee5105f756-Molteni-C-Palazzo-Molteni-Tokyo-02.jpg","pins":[{"id":"p1766734648580","x":35.16,"y":39.92,"title":"ARIAL","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734655028","x":57.58,"y":38.47,"title":"505up","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734663812","x":30.19,"y":82.63,"title":"AUGUSTO","link":"https://www.molteni.it/jp/all-products","sub":"商品詳細はこちら >","type":"product"},{"id":"p1766734680242","x":15.03,"y":45.35,"title":"エコスマート","link":"","sub":"エコスマート","type":"detail"},{"id":"p1766734684899","x":82.42,"y":45.61,"title":"アート","link":"","sub":"アート","type":"detail"}]}]};
 
     let floor = '1F';
     let areaId = null;
@@ -169,15 +151,12 @@
     let touchX = 0;
 
     window.onload = () => {
-        // スマホ判定：横幅が狭い場合は強制VIEWモード
-        if (window.innerWidth <= 768) {
-            mode = 'view';
-        }
+        if (window.innerWidth <= 768) { mode = 'view'; }
         handleFloorChange('1F');
     };
 
     function changeAppMode(m) {
-        if (window.innerWidth <= 768) return; // スマホでは変更不可
+        if (window.innerWidth <= 768) return;
         mode = m; isPinning = false;
         document.getElementById('mode-view').className = (m === 'view' ? 'active' : '');
         document.getElementById('mode-edit').className = (m === 'edit' ? 'active' : '');
@@ -189,8 +168,7 @@
     function handleViewportClick(e) {
         if (mode === 'edit' && !isPinning) {
             if (e.target.closest('.area-nav') || e.target.closest('.mol-hs')) return;
-            changeAppMode('view');
-            return;
+            changeAppMode('view'); return;
         }
         if (mode === 'edit' && isPinning) {
             const stage = document.getElementById('scene-stage');
@@ -212,8 +190,7 @@
     function handleFloorChange(f) {
         floor = f;
         document.querySelectorAll('.floor-btn').forEach(el => el.classList.remove('active'));
-        const btn = document.getElementById('f-'+f);
-        if(btn) btn.classList.add('active');
+        const btn = document.getElementById('f-'+f); if(btn) btn.classList.add('active');
         document.getElementById('admin-f-label').innerText = f;
         renderNavList();
     }
@@ -223,7 +200,7 @@
         nav.innerHTML = '';
         const list = store[floor];
         if(list.length === 0) {
-            document.getElementById('scene-display').innerHTML = '<div class="empty-state">Palazzo Molteni Tokyo Experience.</div>';
+            document.getElementById('scene-display').innerHTML = '<div style="padding:100px; text-align:center; color:#ccc;">No content on this floor.</div>';
             document.getElementById('edit-tools').style.display = 'none';
             return;
         }
@@ -242,7 +219,8 @@
     function selectActiveArea(id) {
         areaId = id;
         const a = store[floor].find(x => x.id === id);
-        document.querySelectorAll('.area-item').forEach(el => el.classList.toggle('active', el.innerText === a.name));
+        if(!a) return;
+        document.querySelectorAll('.area-item').forEach(el => el.classList.toggle('active', el.id === `nav-${id}`));
         renderActiveScene();
         document.getElementById('edit-tools').style.display = (mode === 'edit' ? 'block' : 'none');
         document.getElementById('manual-url').value = a.img || '';
@@ -260,20 +238,12 @@
         let pinsHTML = '';
         a.pins.forEach(p => {
             const isP = p.type === 'product';
-            const linkAttrs = isP ? `href="${p.link}" target="_blank"` : '';
+            const linkAttrs = isP ? `href="${p.link}" target="_blank" rel="noopener noreferrer"` : '';
             const xBtn = (mode === 'edit') ? `<div class="edit-x" onclick="handleDeletePin(event,'${p.id}')">×</div>` : '';
-            pinsHTML += `
-                <div class="mol-hs ${p.type==='detail'?'type-detail':''}" style="top:${p.y}%; left:${p.x}%;" onclick="handlePinInteraction(event, '${p.id}')">
-                    ${xBtn}
-                    <span class="mol-dot-outer"><span class="mol-dot-inner"></span></span>
-                    <a ${linkAttrs} class="mol-card" ontouchstart="">
-                        <strong>${p.title}</strong>
-                        <span>${p.sub}</span>
-                    </a>
-                </div>`;
+            pinsHTML += `<div class="mol-hs ${p.type==='detail'?'type-detail':''}" style="top:${p.y}%; left:${p.x}%;" onclick="handlePinInteraction(event, '${p.id}')">${xBtn}<span class="mol-dot-outer"><span class="mol-dot-inner"></span></span><a ${linkAttrs} class="mol-card" ontouchstart=""><strong>${p.title}</strong><span>${p.sub}</span></a></div>`;
         });
         const container = document.getElementById('scene-display');
-        container.innerHTML = `<div class="scene-wrap" id="scene-stage"><img src="${a.img || 'https://via.placeholder.com/1200x800?text=Awaiting+Visual'}">${pinsHTML}</div>`;
+        container.innerHTML = `<div class="scene-wrap" id="scene-stage"><img src="${a.img || 'https://via.placeholder.com/1200x800?text=Please+Upload+Photo'}">${pinsHTML}</div>`;
     }
 
     function navigateArea(dir) {
@@ -297,8 +267,8 @@
             const nt = prompt("Update Title:", p.title);
             if (nt) {
                 p.title = nt;
-                if(p.type === 'product') p.link = prompt("Update URL:", p.link) || p.link;
-                else p.sub = prompt("Update Description:", p.sub) || p.sub;
+                if(p.type === 'product') p.link = prompt("URL:", p.link) || p.link;
+                else p.sub = prompt("Desc:", p.sub) || p.sub;
                 renderActiveScene();
             }
         }
@@ -316,7 +286,7 @@
         const name = prompt("Title:"); if(!name) return;
         let l = "", s = "商品詳細はこちら >";
         if(t==='product') l = prompt("URL:", "https://"); else s = prompt("Detail:");
-        store[floor].find(x => x.id === areaId).pins.push({ id:'p'+Date.now(), x, y, title:name, link:l, sub:s, type:t });
+        store[floor].find(x => x.id === areaId).pins.push({ id:'p'+Date.now(), x:parseFloat(x.toFixed(2)), y:parseFloat(y.toFixed(2)), title:name, link:l, sub:s, type:t });
         renderActiveScene();
     }
 
@@ -336,8 +306,8 @@
     }
 
     function commitChanges(silent = false) {
-        localStorage.setItem(DATA_ID, JSON.stringify(store));
-        if(!silent) alert("Progress saved to browser memory.");
+        localStorage.setItem(DB_NAME, JSON.stringify(store));
+        if(!silent) alert("Progress saved locally.");
     }
 
     function updateImageManual(v) {
@@ -358,7 +328,7 @@
     function exportPermanentHTML() {
         const currentData = JSON.stringify(store);
         let fullSource = document.documentElement.outerHTML;
-        const regex = /let store = JSON\.parse\(localStorage\.getItem\(DATA_ID\)\) \|\| \{ 'B1F':\[\], '1F':\[\], '2F':\[\], '3F':\[\] \};/;
+        const regex = /let store = JSON\.parse\(localStorage\.getItem\(DB_NAME\)\) \|\| \{ 'B1F':\[\], '1F':\[\], '2F':\[\], '3F':\[\] \};/;
         const replacement = `let store = ${currentData};`;
         fullSource = fullSource.replace(regex, replacement);
         const exportDiv = document.getElementById('export-output');
@@ -368,6 +338,5 @@
         exportText.select();
     }
 </script>
-
-
-</body></html>
+</body>
+</html>
